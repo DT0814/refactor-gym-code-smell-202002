@@ -1,0 +1,7 @@
+package cc.xpbootcamp.code_smell_kit.$15_speculative_generality;
+
+public class Manager extends Employee {
+    public Manager(String name, int age) {
+        super(name, age);
+    }
+}

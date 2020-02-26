@@ -1,42 +1,15 @@
 package cc.xpbootcamp.code_smell_kit.$22_data_class;
 
-//坏味道： 纯数据类
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+//坏味道： 纯数据类。 原本在User类和Corporation类之间还有Department类，但随着业务变化，此类不再被使用。
+@Data
+@AllArgsConstructor
 public class Department {
 
     private String name;
     private String type;
-    private User Manage;
+    private User manager;
     private String code;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public User getManage() {
-        return Manage;
-    }
-
-    public void setManage(User manage) {
-        Manage = manage;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
 }

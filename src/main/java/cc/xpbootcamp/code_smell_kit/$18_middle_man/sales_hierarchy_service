@@ -1,0 +1,13 @@
+
+class SalesHierarchyService:
+    def __index__(self):
+        pass
+
+    def get_sales_hierarchy_page(self, page_num, page_size):
+        sales_hierarchy_dao = SalesHierarchyDao()
+        base_service = BaseService()
+        page_data, total_data_count = sales_hierarchy_dao.query_sales_hierarchy_page(page_num, page_size)
+        if page_data is None:
+            return None, total_data_count
+        page_data = base_service.transform_record_data(page_data)
+        return page_data, total_data_count

@@ -1,0 +1,31 @@
+
+
+class BaseService:
+    def __init__(self, azure_blob_file_utils=AzureBlobFileUtils()):
+        self.azure_blob_file_utils = azure_blob_file_utils
+
+    def transform_record_data(self, record_data):
+        for data in record_data:
+            if 'update_datetime' in data.keys():
+                data['update_datetime'] = str(data['update_datetime'].astimezone(timezone(timedelta(hours=8))))
+            if 'longitude' in data.keys():
+                data['longitude'] = json.dumps(data['longitude'], default=decimal_default)
+            if 'latitude' in data.keys():
+                data['latitude'] = json.dumps(data['latitude'], default=decimal_default)
+            if 'container_name' in data.keys():
+                if 'store_img' in data.keys():
+                    data['store_img'] = self.convert_file_name_list_to_urls(data['container_name'], data['store_img'])
+                if 'license_image' in data.keys():
+                    data['license_image'] = self.convert_file_name_list_to_urls(data['container_name'],
+                                                                                data['license_image'])
+                data.pop('container_name')
+
+        return record_data
+
+    def convert_file_name_list_to_urls(self, container_name, file_name_list):
+        result = []
+        if file_name_list is not None and len(file_name_list) > 0:
+            for file_name in file_name_list.split(','):
+                if file_name is not None:
+                    result.append(self.azure_blob_file_utils.get_blob_share_url_with_expiry(container_name, file_name))
+        return ','.join(result)

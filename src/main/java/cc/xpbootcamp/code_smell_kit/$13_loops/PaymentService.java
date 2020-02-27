@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class AlipayServiceImpl {
+public class PaymentService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlipayServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
 
 
     public String notify(HttpServletRequest request, HttpServletResponse response) {

@@ -19,22 +19,8 @@ type IPGroup struct {
 
 
 func (self *IPGroup) analyzeUpdateIPStr(igInDb *IPGroupInDB) error {
-	//empty string means do not change ips
-	if self.IPs == "" {
-		klog.Debugf("IpGroup analyzeUpdateIps: ip is empty string, do not update ips")
-		return nil
-	}
 
-	ipStrInDb := make([]string, 0)
-	for _, ip := range igInDb.IPs {
-		ipStrInDb = append(ipStrInDb, ip.IPAddr)
-	}
-
-	//calculate AddIps
-	if self.IPs != "" {
-		self.AddIPs = StringSliceDiff(self.IPsSlice, ipStrInDb)
-	}
-
+    //do otherthings
 	//calculate DelIps
 	DelIPAddrs := StringSliceDiff(ipStrInDb, self.IPsSlice)
 	if self.DelIPs == nil {
@@ -56,28 +42,6 @@ func (self *IPGroup) analyzeUpdateIPStr(igInDb *IPGroupInDB) error {
 
 
 func (self *IPGroup) Operate(igInDb *IPGroupInDB) error {
-	if self.IsDuplicateName(igInDb) {
-		klog.Errorf("IpGroup operate error, ip group name exists, name: [%v]", self.Name)
-		return BuildErrWithCode(http.StatusConflict, errors.New("ip group name exists"))
-	}
-
-	if !self.IsValidIPs() {
-		klog.Errorf("IpGroup operate error, invalid ips, name: [%v], ips: [%v]", self.Name, self.IPs)
-		return BuildErrWithCode(http.StatusBadRequest, errors.New("invalid ips"))
-	}
-
-	err := self.AnalyzeIPs(igInDb)
-	if err != nil {
-		klog.Errorf("IpGroup analyzeIps error: [%v]", err.Error())
-		return err
-	}
-	klog.Infof("IpGroup addIps: [%v], delIps: [%v], AddIPsCount: [%v]", self.AddIPs, self.DelIPs, self.AddSize)
-	if igInDb == nil {
-		igInDb = &IPGroupInDB{Name: self.Name, NetworkID: self.NetworkID, ID: self.ID, TenantID: self.TenantID}
-	} else if self.Name != "" {
-		igInDb.Name = self.Name
-	}
-
 	//todo check addips if available
 
 	//create ips
@@ -99,17 +63,6 @@ func (self *IPGroup) Operate(igInDb *IPGroupInDB) error {
 		}
 
 		RemoveIPFromSlice(&(igInDb.IPs), ipAddr)
-	}
-
-	err = saveIGToDBAndCache(igInDb)
-	if err != nil {
-		klog.Errorf("IpGroup Create saveIpGroupToEtcd error: [%v], ipgroup: [%v]", err.Error(), self.ID)
-		return BuildErrWithCode(http.StatusInternalServerError, err)
-	}
-
-	if len(failedips) > 0 {
-		klog.Errorf("IpGroup Delete error, failedips[%v]", failedips)
-		return BuildErrWithCode(http.StatusInternalServerError, errors.New("ip["+strings.Join(failedips, ",")+"] delete failed"))
 	}
 
 	return nil
